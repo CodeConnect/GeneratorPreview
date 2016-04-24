@@ -67,10 +67,12 @@ namespace CodeConnect.GeneratorPreview
         /// </summary>
         protected override void Initialize()
         {
-            PreviewWindowCommand.Initialize(this);
             base.Initialize();
-            CodeConnect.GeneratorPreview.PickGeneratorCommand.Initialize(this);
-            CodeConnect.GeneratorPreview.PickTargetCommand.Initialize(this);
+            StatusBar.Initialize();
+            PreviewWindowCommand.Initialize(this);
+            PickGeneratorCommand.Initialize(this);
+            PickTargetCommand.Initialize(this);
+            
         }
 
         #endregion

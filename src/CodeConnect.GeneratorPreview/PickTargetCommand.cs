@@ -9,6 +9,7 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace CodeConnect.GeneratorPreview
 {
@@ -91,19 +92,18 @@ namespace CodeConnect.GeneratorPreview
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
-        private void MenuItemCallback(object sender, EventArgs e)
+        private async void MenuItemCallback(object sender, EventArgs e)
         {
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "PickTargetCommand";
-
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            try
+            {
+                var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
+                var test = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager)).ToString();
+                StatusBar.ShowStatus("Target picked " + test);
+            }
+            catch (Exception ex)
+            {
+                StatusBar.ShowStatus("Target not picked " + ex);
+            }
         }
     }
 }
