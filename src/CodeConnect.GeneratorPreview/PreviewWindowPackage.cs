@@ -69,6 +69,8 @@ namespace CodeConnect.GeneratorPreview
         {
             PreviewWindowCommand.Initialize(this);
             base.Initialize();
+            CodeConnect.GeneratorPreview.PickGeneratorCommand.Initialize(this);
+            CodeConnect.GeneratorPreview.PickTargetCommand.Initialize(this);
         }
 
         #endregion

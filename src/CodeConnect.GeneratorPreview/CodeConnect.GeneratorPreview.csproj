@@ -51,6 +51,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="PickGeneratorCommand.cs" />
+    <Compile Include="PickTargetCommand.cs" />
     <Compile Include="PreviewWindow.cs" />
     <Compile Include="PreviewWindowCommand.cs" />
     <Compile Include="PreviewWindowControl.xaml.cs">
@@ -71,6 +73,8 @@
     <VSCTCompile Include="PreviewWindowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
+    <Content Include="Resources\PickGeneratorCommand.png" />
+    <Content Include="Resources\PickTargetCommand.png" />
     <Content Include="Resources\PreviewWindowCommand.png" />
     <Content Include="Resources\PreviewWindowPackage.ico" />
     <Content Include="stylesheet.css" />
