@@ -50,11 +50,14 @@ namespace CodeConnect.GeneratorPreview.Helpers
                     StatusBar.ShowStatus($"Error accessing the document. Try building the solution.");
                     return null;
                 }
-                var tree = await document.GetSyntaxTreeAsync();
+                var root = await document.GetSyntaxRootAsync();
+                var element = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(startPosition, endPosition - startPosition));
+                return $"{element.GetType()} {element.ToString()}";
+                /*var tree = await document.GetSyntaxTreeAsync();
                 var model = await document.GetSemanticModelAsync();
                 var rawSnippet = tree.GetText().GetSubText(new Microsoft.CodeAnalysis.Text.TextSpan(startPosition, endPosition - startPosition)).ToString();
                 return rawSnippet;
-                //var selectedMethod = GetMethodAt(document, startPosition, endPosition);
+                */
             }
             else
             {
