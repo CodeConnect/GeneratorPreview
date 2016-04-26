@@ -11,6 +11,9 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextManager.Interop;
 using CodeConnect.GeneratorPreview.Helpers;
+using CodeConnect.GeneratorPreview.View;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace CodeConnect.GeneratorPreview
 {
@@ -34,12 +37,14 @@ namespace CodeConnect.GeneratorPreview
         /// </summary>
         private readonly Package package;
 
+        private readonly ISetGeneratorName _viewModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PickGeneratorCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private PickGeneratorCommand(Package package)
+        private PickGeneratorCommand(Package package, ISetGeneratorName viewModel)
         {
             if (package == null)
             {
@@ -47,6 +52,12 @@ namespace CodeConnect.GeneratorPreview
             }
 
             this.package = package;
+
+            if (viewModel == null)
+            {
+                throw new ArgumentNullException(nameof(viewModel));
+            }
+            _viewModel = viewModel;
 
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
@@ -81,9 +92,9 @@ namespace CodeConnect.GeneratorPreview
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package)
+        public static void Initialize(Package package, ISetGeneratorName viewModel)
         {
-            Instance = new PickGeneratorCommand(package);
+            Instance = new PickGeneratorCommand(package, viewModel);
         }
 
         /// <summary>
@@ -98,12 +109,22 @@ namespace CodeConnect.GeneratorPreview
             try
             {
                 var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
-                var test = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager)).ToString();
-                StatusBar.ShowStatus("Generator picked " + test);
+                var node = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
+                var baseMethod = node.AncestorsAndSelf().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
+                var method = baseMethod as MethodDeclarationSyntax;
+                if (method != null)
+                {
+                    _viewModel.GeneratorName = method.Identifier.ToString();
+                }
+                else
+                {
+                    _viewModel.GeneratorName = baseMethod.GetType().ToString();
+                }
+                StatusBar.ShowStatus("Generator picked.");
             }
             catch (Exception ex)
             {
-                StatusBar.ShowStatus("Target not picked " + ex);
+                StatusBar.ShowStatus("Generator not picked: " + ex);
             }
         }
     }

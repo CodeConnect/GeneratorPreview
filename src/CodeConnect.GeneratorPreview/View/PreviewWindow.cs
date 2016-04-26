@@ -4,7 +4,7 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
-namespace CodeConnect.GeneratorPreview
+namespace CodeConnect.GeneratorPreview.View
 {
     using System;
     using System.Runtime.InteropServices;

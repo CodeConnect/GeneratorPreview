@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
+using CodeConnect.GeneratorPreview.View;
 
 namespace CodeConnect.GeneratorPreview
 {
@@ -61,6 +62,8 @@ namespace CodeConnect.GeneratorPreview
 
         #region Package Members
 
+        public PreviewWindowViewModel ViewModel;
+
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
@@ -69,10 +72,10 @@ namespace CodeConnect.GeneratorPreview
         {
             base.Initialize();
             StatusBar.Initialize();
-            PreviewWindowCommand.Initialize(this);
-            PickGeneratorCommand.Initialize(this);
-            PickTargetCommand.Initialize(this);
-            
+            ViewModel = new PreviewWindowViewModel();
+            PreviewWindowCommand.Initialize(this, ViewModel);
+            PickGeneratorCommand.Initialize(this, ViewModel);
+            PickTargetCommand.Initialize(this, ViewModel);
         }
 
         #endregion

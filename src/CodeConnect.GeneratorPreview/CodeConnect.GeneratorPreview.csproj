@@ -55,12 +55,14 @@
     <Compile Include="Helpers\TextManagerExtensions.cs" />
     <Compile Include="PickGeneratorCommand.cs" />
     <Compile Include="PickTargetCommand.cs" />
-    <Compile Include="PreviewWindow.cs" />
+    <Compile Include="View\Interfaces.cs" />
+    <Compile Include="View\PreviewWindow.cs" />
     <Compile Include="PreviewWindowCommand.cs" />
-    <Compile Include="PreviewWindowControl.xaml.cs">
+    <Compile Include="View\PreviewWindowControl.xaml.cs">
       <DependentUpon>PreviewWindowControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="PreviewWindowPackage.cs" />
+    <Compile Include="View\PreviewWindowViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\WorkspaceHelpers.cs" />
     <Compile Include="StatusBar.cs" />
@@ -84,7 +86,7 @@
     <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="PreviewWindowControl.xaml">
+    <Page Include="View\PreviewWindowControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

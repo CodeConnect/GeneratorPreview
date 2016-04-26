@@ -9,6 +9,7 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using CodeConnect.GeneratorPreview.View;
 
 namespace CodeConnect.GeneratorPreview
 {
@@ -32,12 +33,14 @@ namespace CodeConnect.GeneratorPreview
         /// </summary>
         private readonly Package package;
 
+        private readonly IShowAll _viewModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PreviewWindowCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private PreviewWindowCommand(Package package)
+        private PreviewWindowCommand(Package package, IShowAll viewModel)
         {
             if (package == null)
             {
@@ -45,6 +48,12 @@ namespace CodeConnect.GeneratorPreview
             }
 
             this.package = package;
+
+            if (viewModel == null)
+            {
+                throw new ArgumentNullException(nameof(viewModel));
+            }
+            _viewModel = viewModel;
 
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
@@ -79,9 +88,9 @@ namespace CodeConnect.GeneratorPreview
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package)
+        public static void Initialize(Package package, IShowAll viewModel)
         {
-            Instance = new PreviewWindowCommand(package);
+            Instance = new PreviewWindowCommand(package, viewModel);
         }
 
         /// <summary>
@@ -98,6 +107,12 @@ namespace CodeConnect.GeneratorPreview
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException("Cannot create tool window");
+            }
+
+            var previewWindow = window.Content as PreviewWindowControl;
+            if (previewWindow != null)
+            {
+                previewWindow.DataContext = _viewModel;
             }
 
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;

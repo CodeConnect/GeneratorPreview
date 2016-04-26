@@ -34,7 +34,7 @@ namespace CodeConnect.GeneratorPreview.Helpers
             return document;
         }
 
-        internal static async Task<object> GetSelectedSyntaxNode(IVsTextManager textManager)
+        internal static async Task<SyntaxNode> GetSelectedSyntaxNode(IVsTextManager textManager)
         {
             int startPosition, endPosition;
             string filePath;
@@ -52,12 +52,7 @@ namespace CodeConnect.GeneratorPreview.Helpers
                 }
                 var root = await document.GetSyntaxRootAsync();
                 var element = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(startPosition, endPosition - startPosition));
-                return $"{element.GetType()} {element.ToString()}";
-                /*var tree = await document.GetSyntaxTreeAsync();
-                var model = await document.GetSemanticModelAsync();
-                var rawSnippet = tree.GetText().GetSubText(new Microsoft.CodeAnalysis.Text.TextSpan(startPosition, endPosition - startPosition)).ToString();
-                return rawSnippet;
-                */
+                return element;
             }
             else
             {
