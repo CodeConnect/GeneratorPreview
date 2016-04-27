@@ -115,7 +115,7 @@ namespace CodeConnect.GeneratorPreview
             }
             catch (Exception ex)
             {
-                StatusBar.ShowStatus("Target not picked: " + ex);
+                StatusBar.ShowStatus("Target not picked: " + ex.Message);
             }
         }
     }

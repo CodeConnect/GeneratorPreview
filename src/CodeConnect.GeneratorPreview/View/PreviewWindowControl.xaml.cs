@@ -37,7 +37,7 @@ namespace CodeConnect.GeneratorPreview.View
             }
             catch (Exception ex)
             {
-                StatusBar.ShowStatus("Generation failed: " + ex);
+                StatusBar.ShowStatus("Generation failed: " + ex.Message);
             }
         }
     }

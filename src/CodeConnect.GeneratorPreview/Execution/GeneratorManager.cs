@@ -38,6 +38,11 @@ namespace CodeConnect.GeneratorPreview.Execution
 
         public void Generate()
         {
+            if (_target == null)
+                throw new InvalidOperationException("Pick the target method.");
+            if (_generator == null)
+                throw new InvalidOperationException("Pick the generator.");
+
             _viewModel.GeneratedCode = _target.ToFullString();
             _viewModel.Errors = String.Join(Environment.NewLine, _target.GetDiagnostics().Select(n => n.ToString()));
         }

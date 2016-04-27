@@ -116,7 +116,7 @@ namespace CodeConnect.GeneratorPreview
             }
             catch (Exception ex)
             {
-                StatusBar.ShowStatus("Generator not picked: " + ex);
+                StatusBar.ShowStatus("Generator not picked: " + ex.Message);
             }
         }
     }
