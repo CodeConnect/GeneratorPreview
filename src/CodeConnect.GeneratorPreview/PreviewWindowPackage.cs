@@ -72,8 +72,10 @@ namespace CodeConnect.GeneratorPreview
         {
             base.Initialize();
             StatusBar.Initialize();
+
             ViewModel = new PreviewWindowViewModel();
             PreviewWindowCommand.Initialize(this, ViewModel);
+
             PickGeneratorCommand.Initialize(this, ViewModel);
             PickTargetCommand.Initialize(this, ViewModel);
         }
