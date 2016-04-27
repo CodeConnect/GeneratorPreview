@@ -76,7 +76,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="index.html" />
     <VSCTCompile Include="PreviewWindowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
@@ -84,7 +83,6 @@
     <Content Include="Resources\PickTargetCommand.png" />
     <Content Include="Resources\PreviewWindowCommand.png" />
     <Content Include="Resources\PreviewWindowPackage.ico" />
-    <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="View\PreviewWindowControl.xaml">
