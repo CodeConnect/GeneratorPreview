@@ -19,6 +19,7 @@ namespace CodeConnect.GeneratorPreview.View
     public interface ISetGeneratedCode
     {
         string GeneratedCode { set; }
+        string Errors { set; }
     }
 
     public interface IShowAll
@@ -26,5 +27,6 @@ namespace CodeConnect.GeneratorPreview.View
         string GeneratorName { get; }
         string TargetName { get; }
         string GeneratedCode { get; }
+        string Errors { get; }
     }
 }

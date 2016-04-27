@@ -74,5 +74,22 @@ namespace CodeConnect.GeneratorPreview.View
                 }
             }
         }
+
+        private string _errors;
+        public string Errors
+        {
+            get
+            {
+                return _errors;
+            }
+            set
+            {
+                if (value != _errors)
+                {
+                    _errors = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
     }
 }

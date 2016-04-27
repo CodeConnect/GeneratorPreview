@@ -123,6 +123,7 @@ namespace CodeConnect.GeneratorPreview
 
                 var hack = _viewModel as ISetGeneratedCode;
                 hack.GeneratedCode = baseMethod.ToFullString();
+                hack.Errors = String.Join(Environment.NewLine, baseMethod.GetDiagnostics().Select(n => n.ToString()));
             }
             catch (Exception ex)
             {
