@@ -3,7 +3,8 @@
   <Metadata>
     <Identity Id="CodeConnect.GeneratorPreview.Amadeusz Wieczorek.97c1e2b5-786c-4cd4-b8af-562d8196b4fa" Version="1.0" Language="en-US" Publisher="Amadeusz Wieczorek" />
     <DisplayName>CodeConnect.GeneratorPreview</DisplayName>
-    <Description>Empty VSIX Project.</Description>
+    <Description xml:space="preserve">Preview window for features/generator</Description>
+    <MoreInfo>https://github.com/CodeConnect/GeneratorPreview</MoreInfo>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
