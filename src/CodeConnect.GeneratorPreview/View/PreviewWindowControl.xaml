@@ -13,7 +13,7 @@
             
             <TextBlock DockPanel.Dock="Top" Margin="0 0 0 5">Generator: <Run Text="{Binding Path=GeneratorName}" /></TextBlock>
             <TextBlock DockPanel.Dock="Top" Margin="0 0 0 5">Target: <Run Text="{Binding Path=TargetName}" /></TextBlock>
-
+            <Button DockPanel.Dock="Top" Margin="10 0 10 5" Content="Generate" x:Name="generateButton" />
             <ScrollViewer Height="100" DockPanel.Dock="Bottom">
                 <TextBlock Margin="3" Text="{Binding Path=Errors}"></TextBlock>
             </ScrollViewer>

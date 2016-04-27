@@ -29,4 +29,12 @@ namespace CodeConnect.GeneratorPreview.View
         string GeneratedCode { get; }
         string Errors { get; }
     }
+
+    public interface IViewModel
+    {
+        string GeneratorName { get; set; }
+        string TargetName { get; set; }
+        string GeneratedCode { get; set; }
+        string Errors { get; set; }
+    }
 }

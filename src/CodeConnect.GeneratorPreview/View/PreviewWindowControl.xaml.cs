@@ -6,35 +6,39 @@
 
 namespace CodeConnect.GeneratorPreview.View
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Windows;
     using System.Windows.Controls;
+    using Execution;
 
     /// <summary>
     /// Interaction logic for PreviewWindowControl.
     /// </summary>
     public partial class PreviewWindowControl : UserControl
     {
+        public GeneratorManager Manager { get; internal set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PreviewWindowControl"/> class.
         /// </summary>
         public PreviewWindowControl()
         {
             this.InitializeComponent();
+            generateButton.Click += GenerateButtonClickHandler;
         }
 
-        /// <summary>
-        /// Handles click on the button by displaying a message box.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event args.</param>
-        [SuppressMessage("Microsoft.Globalization", "CA1300:SpecifyMessageBoxOptions", Justification = "Sample code")]
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void GenerateButtonClickHandler(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
-                "PreviewWindow");
+            try
+            {
+                Manager.Generate();
+                StatusBar.ShowStatus("Generation successful.");
+            }
+            catch (Exception ex)
+            {
+                StatusBar.ShowStatus("Generation failed: " + ex);
+            }
         }
     }
 }

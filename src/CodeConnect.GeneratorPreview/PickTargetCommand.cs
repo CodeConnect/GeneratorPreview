@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using CodeConnect.GeneratorPreview.View;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using CodeConnect.GeneratorPreview.Execution;
 
 namespace CodeConnect.GeneratorPreview
 {
@@ -34,29 +35,28 @@ namespace CodeConnect.GeneratorPreview
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
-        private readonly Package package;
-
-        private readonly ISetTargetName _viewModel;
+        private readonly Package _package;
+        private readonly GeneratorManager _manager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PickTargetCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private PickTargetCommand(Package package, ISetTargetName viewModel)
+        private PickTargetCommand(Package package, GeneratorManager manager)
         {
             if (package == null)
             {
                 throw new ArgumentNullException("package");
             }
 
-            this.package = package;
+            _package = package;
 
-            if (viewModel == null)
+            if (manager == null)
             {
-                throw new ArgumentNullException(nameof(viewModel));
+                throw new ArgumentNullException(nameof(manager));
             }
-            _viewModel = viewModel;
+            _manager = manager;
 
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
@@ -83,7 +83,7 @@ namespace CodeConnect.GeneratorPreview
         {
             get
             {
-                return this.package;
+                return this._package;
             }
         }
 
@@ -91,9 +91,9 @@ namespace CodeConnect.GeneratorPreview
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package, ISetTargetName viewModel)
+        public static void Initialize(Package package, GeneratorManager manager)
         {
-            Instance = new PickTargetCommand(package, viewModel);
+            Instance = new PickTargetCommand(package, manager);
         }
 
         /// <summary>
@@ -110,20 +110,8 @@ namespace CodeConnect.GeneratorPreview
                 var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
                 var node = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
                 var baseMethod = node.AncestorsAndSelf().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
-                var method = baseMethod as MethodDeclarationSyntax;
-                if (method != null)
-                {
-                    _viewModel.TargetName = method.Identifier.ToString();
-                }
-                else
-                {
-                    _viewModel.TargetName = baseMethod.GetType().ToString();
-                }
+                _manager.SetTarget(baseMethod);
                 StatusBar.ShowStatus("Target picked.");
-
-                var hack = _viewModel as ISetGeneratedCode;
-                hack.GeneratedCode = baseMethod.ToFullString();
-                hack.Errors = String.Join(Environment.NewLine, baseMethod.GetDiagnostics().Select(n => n.ToString()));
             }
             catch (Exception ex)
             {

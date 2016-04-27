@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CodeConnect.GeneratorPreview.View
 {
-    public class PreviewWindowViewModel : INotifyPropertyChanged, ISetGeneratorName, ISetTargetName, ISetGeneratedCode, IShowAll
+    public class PreviewWindowViewModel : INotifyPropertyChanged, IShowAll, IViewModel
     {
         #region INotifyPropertyChanged stuff
 

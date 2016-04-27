@@ -14,6 +14,7 @@ using CodeConnect.GeneratorPreview.Helpers;
 using CodeConnect.GeneratorPreview.View;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
+using CodeConnect.GeneratorPreview.Execution;
 
 namespace CodeConnect.GeneratorPreview
 {
@@ -35,29 +36,28 @@ namespace CodeConnect.GeneratorPreview
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
-        private readonly Package package;
-
-        private readonly ISetGeneratorName _viewModel;
+        private readonly Package _package;
+        private readonly GeneratorManager _manager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PickGeneratorCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private PickGeneratorCommand(Package package, ISetGeneratorName viewModel)
+        private PickGeneratorCommand(Package package, GeneratorManager manager)
         {
             if (package == null)
             {
                 throw new ArgumentNullException("package");
             }
 
-            this.package = package;
+            _package = package;
 
-            if (viewModel == null)
+            if (manager == null)
             {
-                throw new ArgumentNullException(nameof(viewModel));
+                throw new ArgumentNullException(nameof(manager));
             }
-            _viewModel = viewModel;
+            _manager = manager;
 
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
@@ -84,7 +84,7 @@ namespace CodeConnect.GeneratorPreview
         {
             get
             {
-                return this.package;
+                return this._package;
             }
         }
 
@@ -92,9 +92,9 @@ namespace CodeConnect.GeneratorPreview
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package, ISetGeneratorName viewModel)
+        public static void Initialize(Package package, GeneratorManager manager)
         {
-            Instance = new PickGeneratorCommand(package, viewModel);
+            Instance = new PickGeneratorCommand(package, manager);
         }
 
         /// <summary>
@@ -111,15 +111,7 @@ namespace CodeConnect.GeneratorPreview
                 var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
                 var node = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
                 var baseMethod = node.AncestorsAndSelf().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
-                var method = baseMethod as MethodDeclarationSyntax;
-                if (method != null)
-                {
-                    _viewModel.GeneratorName = method.Identifier.ToString();
-                }
-                else
-                {
-                    _viewModel.GeneratorName = baseMethod.GetType().ToString();
-                }
+                _manager.SetTarget(baseMethod);
                 StatusBar.ShowStatus("Generator picked.");
             }
             catch (Exception ex)
