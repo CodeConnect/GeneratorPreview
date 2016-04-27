@@ -10,9 +10,6 @@ namespace CodeConnect.GeneratorPreview.Execution
 {
     public class GeneratorManager
     {
-        public delegate void OnGenerateEventArgs();
-        public event OnGenerateEventArgs OnGenerate;
-
         private BaseMethodDeclarationSyntax _generator;
         private BaseMethodDeclarationSyntax _target;
         private PreviewWindowPackage _previewWindowPackage;
