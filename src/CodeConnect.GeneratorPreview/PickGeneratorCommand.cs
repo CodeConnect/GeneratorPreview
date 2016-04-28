@@ -111,7 +111,7 @@ namespace CodeConnect.GeneratorPreview
                 var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
                 var node = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
                 var baseMethod = node.AncestorsAndSelf().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
-                _manager.SetTarget(baseMethod);
+                _manager.SetGenerator(baseMethod);
                 StatusBar.ShowStatus("Generator picked.");
             }
             catch (Exception ex)
