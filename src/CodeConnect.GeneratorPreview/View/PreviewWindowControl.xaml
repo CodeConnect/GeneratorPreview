@@ -14,13 +14,16 @@
             <TextBlock DockPanel.Dock="Top" Margin="0 0 0 5">Generator: <Run Text="{Binding Path=GeneratorName}" /></TextBlock>
             <TextBlock DockPanel.Dock="Top" Margin="0 0 0 5">Target: <Run Text="{Binding Path=TargetName}" /></TextBlock>
             <Button DockPanel.Dock="Top" Margin="10 0 10 5" Content="Generate" x:Name="generateButton" />
-            <ScrollViewer Height="100" DockPanel.Dock="Bottom">
-                <TextBlock Margin="3" Text="{Binding Path=Errors}"></TextBlock>
-            </ScrollViewer>
 
-            <ScrollViewer>
-                <TextBlock Margin="3" FontFamily="Consolas" Text="{Binding Path=GeneratedCode}"></TextBlock>
-            </ScrollViewer>
+            <TextBox 
+                Text="{Binding Path=Errors}" 
+                DockPanel.Dock="Bottom" Margin="0 0 0 5" Height="100"
+                FontFamily="Consolas" IsReadOnly="True" />
+
+            <TextBox 
+                Text="{Binding Path=GeneratedCode}"
+                Margin="0 0 0 5" 
+                FontFamily="Consolas" IsReadOnly="True" />
             
         </DockPanel>
     </Grid>
