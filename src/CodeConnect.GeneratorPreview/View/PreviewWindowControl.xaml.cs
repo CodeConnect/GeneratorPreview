@@ -28,11 +28,11 @@ namespace CodeConnect.GeneratorPreview.View
             generateButton.Click += GenerateButtonClickHandler;
         }
 
-        private void GenerateButtonClickHandler(object sender, RoutedEventArgs e)
+        private async void GenerateButtonClickHandler(object sender, RoutedEventArgs e)
         {
             try
             {
-                Manager.Generate();
+                await Manager.Generate();
                 StatusBar.ShowStatus("Generation successful.");
             }
             catch (Exception ex)
