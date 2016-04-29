@@ -21,10 +21,17 @@ namespace CodeConnect.GeneratorPreview.Execution
         private PreviewWindowPackage _previewWindowPackage;
         private IViewModel _viewModel;
 
+        public static GeneratorManager Instance { get; private set; }
+        public static object ViewModel { get; private set; }
+
         public GeneratorManager(PreviewWindowPackage previewWindowPackage, IViewModel viewModel)
         {
             _previewWindowPackage = previewWindowPackage;
             _viewModel = viewModel;
+
+            // Set up static properties for other classes
+            Instance = this;
+            ViewModel = viewModel;
         }
 
         public void SetGenerator(TypeDeclarationSyntax type)

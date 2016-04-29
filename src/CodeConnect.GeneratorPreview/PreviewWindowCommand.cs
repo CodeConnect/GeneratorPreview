@@ -119,8 +119,6 @@ namespace CodeConnect.GeneratorPreview
             var previewWindow = window.Content as PreviewWindowControl;
             if (previewWindow != null)
             {
-                previewWindow.Manager = _manager;
-                previewWindow.DataContext = _viewModel;
             }
 
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
