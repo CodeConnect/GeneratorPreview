@@ -17,14 +17,13 @@ namespace CodeConnect.GeneratorPreview.View
     /// </summary>
     public partial class PreviewWindowControl : UserControl
     {
-        public GeneratorManager Manager { get; internal set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="PreviewWindowControl"/> class.
         /// </summary>
         public PreviewWindowControl()
         {
             this.InitializeComponent();
+            this.DataContext = GeneratorManager.ViewModel;
             generateButton.Click += GenerateButtonClickHandler;
         }
 
@@ -32,7 +31,7 @@ namespace CodeConnect.GeneratorPreview.View
         {
             try
             {
-                await Manager.Generate();
+                await GeneratorManager.Instance.Generate();
                 StatusBar.ShowStatus("Generation successful.");
             }
             catch (Exception ex)
