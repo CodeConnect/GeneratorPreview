@@ -111,8 +111,8 @@ namespace CodeConnect.GeneratorPreview
                 var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
                 var nodeAndDocument = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
                 var node = nodeAndDocument.Item1;
-                var baseMethod = node.AncestorsAndSelf().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
-                _manager.SetGenerator(baseMethod);
+                var type = node.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+                _manager.SetGenerator(type);
                 StatusBar.ShowStatus("Generator picked.");
             }
             catch (Exception ex)

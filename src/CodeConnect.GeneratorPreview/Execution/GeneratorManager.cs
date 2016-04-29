@@ -15,7 +15,7 @@ namespace CodeConnect.GeneratorPreview.Execution
 {
     public class GeneratorManager
     {
-        private BaseMethodDeclarationSyntax _generator;
+        private TypeDeclarationSyntax _generator;
         private BaseMethodDeclarationSyntax _target;
         private Document _targetDocument;
         private PreviewWindowPackage _previewWindowPackage;
@@ -27,10 +27,10 @@ namespace CodeConnect.GeneratorPreview.Execution
             _viewModel = viewModel;
         }
 
-        public void SetGenerator(BaseMethodDeclarationSyntax method)
+        public void SetGenerator(TypeDeclarationSyntax type)
         {
-            _generator = method;
-            _viewModel.GeneratorName = getUIName(method);
+            _generator = type;
+            _viewModel.GeneratorName = getUIName(type);
         }
 
         public void SetTarget(BaseMethodDeclarationSyntax method, Document document)
@@ -47,27 +47,29 @@ namespace CodeConnect.GeneratorPreview.Execution
             if (_targetDocument == null)
                 throw new InvalidOperationException("Target document is not set.");
             if (_generator == null)
-                throw new InvalidOperationException("Pick the generator.");
+                throw new InvalidOperationException("Pick the generator class.");
 
             var compilation = await _targetDocument.Project.GetCompilationAsync(token);
 
-            var generator = new MyGenerator(context => context.AddCompilationUnit("__c", CSharpSyntaxTree.ParseText(@"class __C { }")));
+            var generatorName = _generator.Identifier.ToString();
+            var fileName = generatorName + ".cs";
+
+            var generator = new MyGenerator(context => context.AddCompilationUnit(generatorName, _target.SyntaxTree));
 
             var path = Path.GetDirectoryName(_targetDocument.FilePath);
-
             var trees = compilation.GenerateSource(
                 ImmutableArray.Create<SourceGenerator>(generator),
                 path,
                 writeToDisk: false,
                 cancellationToken: token);
-            var filePath = Path.Combine(path, "__c.cs");
+            var filePath = Path.Combine(path, fileName);
 
             Microsoft.CodeAnalysis.Text.SourceText sourceText;
             if (trees[0].TryGetText(out sourceText))
             {
                 // Update the solution
-                var newSolution = _targetDocument.Project.Solution.AddDocument(DocumentId.CreateNewId(_targetDocument.Project.Id, "__c"), "__c", sourceText, null, filePath, true);
-                var newProject = _targetDocument.Project.AddDocument("__c", sourceText, null, filePath);
+                var newSolution = _targetDocument.Project.Solution.AddDocument(DocumentId.CreateNewId(_targetDocument.Project.Id, generatorName), generatorName, sourceText, null, filePath, true);
+                var newProject = _targetDocument.Project.AddDocument(generatorName, sourceText, null, filePath);
             }
 
             // 2. figure out how to create an instance of generator
@@ -88,6 +90,11 @@ namespace CodeConnect.GeneratorPreview.Execution
             {
                 return baseMethod.GetType().ToString();
             }
+        }
+
+        private string getUIName(TypeDeclarationSyntax type)
+        {
+            return type.Identifier.ToString();
         }
 
         private sealed class MyGenerator : SourceGenerator
