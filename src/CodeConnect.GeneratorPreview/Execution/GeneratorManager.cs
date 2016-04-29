@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using System.IO;
 using System.Collections.Immutable;
 using System.Threading;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace CodeConnect.GeneratorPreview.Execution
 {
@@ -18,6 +19,7 @@ namespace CodeConnect.GeneratorPreview.Execution
         private TypeDeclarationSyntax _generator;
         private BaseMethodDeclarationSyntax _target;
         private Document _targetDocument;
+        private Document _generatorDocument;
         private PreviewWindowPackage _previewWindowPackage;
         private IViewModel _viewModel;
 
@@ -34,10 +36,11 @@ namespace CodeConnect.GeneratorPreview.Execution
             ViewModel = viewModel;
         }
 
-        public void SetGenerator(TypeDeclarationSyntax type)
+        public void SetGenerator(TypeDeclarationSyntax type, Document document)
         {
             _generator = type;
-            _viewModel.GeneratorName = getUIName(type);
+            _generatorDocument = document;
+            _viewModel.GeneratorName = $"{getUIName(type)} at {document.Name}";
         }
 
         public void SetTarget(BaseMethodDeclarationSyntax method, Document document)
@@ -55,35 +58,56 @@ namespace CodeConnect.GeneratorPreview.Execution
                 throw new InvalidOperationException("Target document is not set.");
             if (_generator == null)
                 throw new InvalidOperationException("Pick the generator class.");
+            if (_generatorDocument == null)
+                throw new InvalidOperationException("Generator document is not set.");
+
+            var generatorName = _generator.Identifier.ToString() + "_generated";
+
+            var generator = new MyGenerator(context => context.AddCompilationUnit(generatorName, _generator.SyntaxTree));
+            var generatorProjectPath = _generatorDocument.Project.OutputFilePath;
+            var generatorReference = new MyGeneratorReference(ImmutableArray.Create<SourceGenerator>(generator), generatorProjectPath);
 
             var compilation = await _targetDocument.Project.GetCompilationAsync(token);
+            var targetProjectId = _targetDocument.Project.Id;
+            var generatorProjectId = _targetDocument.Project.Id;
 
-            var generatorName = _generator.Identifier.ToString();
-            var fileName = generatorName + ".cs";
+            // TODO: An analyzer must be inside a .dll,
+            // so we will need to create a dll project that will host the generator
+            /*
+             * or try to properly reference the other project as having analyzers...
+             * 
+            var workspace = new AdhocWorkspace(); // load existing solution there?
+            var projectInfo = ProjectInfo.Create(
+                projectId,
+                VersionStamp.Default,
+                name: "C",
+                assemblyName: "C.dll",
+                language: LanguageNames.CSharp,
+                outputFilePath: outputPath + Path.DirectorySeparatorChar);
+            var solution = workspace.CurrentSolution
+                .AddProject(projectInfo)
+                .AddMetadataReference(projectId, MscorlibRef)
+                .AddDocument(docId, "C.cs", source0)
+                .AddAnalyzerReference(projectId, generatorReference);
+                */
 
-            var generator = new MyGenerator(context => context.AddCompilationUnit(generatorName, _target.SyntaxTree));
+            var workspace = Helpers.WorkspaceHelpers.CurrentWorkspace;
+            var solution = workspace.CurrentSolution.AddAnalyzerReference(generatorProjectId, generatorReference);
+            workspace.TryApplyChanges(solution);
+            workspace.UpdateGeneratedDocumentsIfNecessary(targetProjectId);
 
-            var path = Path.GetDirectoryName(_targetDocument.FilePath);
-            var trees = compilation.GenerateSource(
-                ImmutableArray.Create<SourceGenerator>(generator),
-                path,
-                writeToDisk: false,
-                cancellationToken: token);
-            var filePath = Path.Combine(path, fileName);
+            var updatedSolution = workspace.CurrentSolution;
+            var updatedProject = updatedSolution.GetProject(targetProjectId);
+            var doc = updatedSolution.GetDocument(_targetDocument.Id);
+            var model = await doc.GetSemanticModelAsync();
+            var updatedCompilation = model.Compilation;
+            var updatedTrees = updatedCompilation.SyntaxTrees.ToList();
+            var actualSource = updatedTrees.FirstOrDefault(n => n.FilePath == _targetDocument.FilePath)?.GetText().ToString();
 
-            Microsoft.CodeAnalysis.Text.SourceText sourceText;
-            if (trees[0].TryGetText(out sourceText))
-            {
-                // Update the solution
-                var newSolution = _targetDocument.Project.Solution.AddDocument(DocumentId.CreateNewId(_targetDocument.Project.Id, generatorName), generatorName, sourceText, null, filePath, true);
-                var newProject = _targetDocument.Project.AddDocument(generatorName, sourceText, null, filePath);
-            }
+            // In the end, try to decompile the IL back to C# and present this instead.
 
-            // 2. figure out how to create an instance of generator
-            // 3. get compiled trees and return the bit with the target method
-
-            _viewModel.GeneratedCode = _target.ToFullString();
-            _viewModel.Errors = String.Join(Environment.NewLine, trees[0].GetDiagnostics().Select(n => n.ToString()));
+            _viewModel.GeneratedCode = actualSource;
+            _viewModel.Errors = String.Join(Environment.NewLine, updatedCompilation.GetDiagnostics().Where(n => n.Severity >= DiagnosticSeverity.Error).Select(n => n.ToString()));
         }
 
         private string getUIName(BaseMethodDeclarationSyntax baseMethod)
@@ -104,6 +128,8 @@ namespace CodeConnect.GeneratorPreview.Execution
             return type.Identifier.ToString();
         }
 
+        // Copied these from SourceGeneratorTests:
+
         private sealed class MyGenerator : SourceGenerator
         {
             private readonly Action<SourceGeneratorContext> _execute;
@@ -116,6 +142,43 @@ namespace CodeConnect.GeneratorPreview.Execution
             public override void Execute(SourceGeneratorContext context)
             {
                 _execute(context);
+            }
+        }
+
+        private sealed class MyGeneratorReference : AnalyzerReference
+        {
+            private readonly ImmutableArray<SourceGenerator> _generators;
+            private readonly string _fullPath;
+
+            internal MyGeneratorReference(ImmutableArray<SourceGenerator> generators, string path)
+            {
+                _generators = generators;
+                _fullPath = path;
+            }
+
+            public override string FullPath
+            {
+                get { return _fullPath; }
+            }
+
+            public override object Id
+            {
+                get { return Guid.NewGuid(); }
+            }
+
+            public override ImmutableArray<DiagnosticAnalyzer> GetAnalyzers(string language)
+            {
+                return ImmutableArray<DiagnosticAnalyzer>.Empty;
+            }
+
+            public override ImmutableArray<DiagnosticAnalyzer> GetAnalyzersForAllLanguages()
+            {
+                return ImmutableArray<DiagnosticAnalyzer>.Empty;
+            }
+
+            public override ImmutableArray<SourceGenerator> GetSourceGenerators(string language)
+            {
+                return _generators;
             }
         }
     }
