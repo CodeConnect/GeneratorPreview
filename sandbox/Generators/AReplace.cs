@@ -16,6 +16,16 @@ namespace Generators
             }
         }
 
-        replace private string Word = "Sample Text";
+        replace public int GetNumber()
+        {
+            if (false)
+            {
+                return original;
+            }
+            else
+            {
+                return 666;
+            }
+        }
     }
 }

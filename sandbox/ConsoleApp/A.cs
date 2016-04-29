@@ -11,5 +11,10 @@ namespace ConsoleApp
         public int Number => Word.Length;
 
         private string Word = "hey";
+
+        public int GetNumber()
+        {
+            return Number * 2;
+        }
     }
 }
