@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using CodeConnect.GeneratorPreview.View;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
+using System.IO;
 
 namespace CodeConnect.GeneratorPreview.Execution
 {
@@ -12,6 +15,7 @@ namespace CodeConnect.GeneratorPreview.Execution
     {
         private BaseMethodDeclarationSyntax _generator;
         private BaseMethodDeclarationSyntax _target;
+        private Document _targetDocument;
         private PreviewWindowPackage _previewWindowPackage;
         private IViewModel _viewModel;
 
@@ -27,10 +31,11 @@ namespace CodeConnect.GeneratorPreview.Execution
             _viewModel.GeneratorName = getUIName(method);
         }
 
-        public void SetTarget(BaseMethodDeclarationSyntax method)
+        public void SetTarget(BaseMethodDeclarationSyntax method, Document document)
         {
             _target = method;
-            _viewModel.TargetName = getUIName(method);
+            _targetDocument = document;
+            _viewModel.TargetName = $"{getUIName(method)} at {document.Name}";
         }
 
         public void Generate()

@@ -108,9 +108,11 @@ namespace CodeConnect.GeneratorPreview
             try
             {
                 var textManager = (IVsTextManager)ServiceProvider.GetService(typeof(SVsTextManager));
-                var node = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
+                var nodeAndDocument = (await Helpers.WorkspaceHelpers.GetSelectedSyntaxNode(textManager));
+                var node = nodeAndDocument.Item1;
+                var document = nodeAndDocument.Item2;
                 var baseMethod = node.AncestorsAndSelf().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
-                _manager.SetTarget(baseMethod);
+                _manager.SetTarget(baseMethod, document);
                 StatusBar.ShowStatus("Target picked.");
             }
             catch (Exception ex)

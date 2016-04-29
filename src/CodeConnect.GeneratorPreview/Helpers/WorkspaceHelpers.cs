@@ -34,7 +34,7 @@ namespace CodeConnect.GeneratorPreview.Helpers
             return document;
         }
 
-        internal static async Task<SyntaxNode> GetSelectedSyntaxNode(IVsTextManager textManager)
+        internal static async Task<Tuple<SyntaxNode, Document>> GetSelectedSyntaxNode(IVsTextManager textManager)
         {
             int startPosition, endPosition;
             string filePath;
@@ -52,7 +52,7 @@ namespace CodeConnect.GeneratorPreview.Helpers
                 }
                 var root = await document.GetSyntaxRootAsync();
                 var element = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(startPosition, endPosition - startPosition));
-                return element;
+                return Tuple.Create(element, document);
             }
             else
             {
